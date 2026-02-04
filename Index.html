@@ -1,208 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Premium Animated Website</title>
+<meta charset="UTF-8">
+<title>Rain Profile</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;600;800&display=swap" rel="stylesheet">
 
 <style>
+:root{
+  --bg:#0a0a0a;
+  --card:rgba(255,255,255,.08);
+  --text:#eee;
+}
+
 *{margin:0;padding:0;box-sizing:border-box;font-family:Inter}
 body{
-  background:#050505;
-  color:white;
-  overflow-x:hidden;
+  background:var(--bg);
+  color:var(--text);
+  overflow:hidden;
 }
 
-/* ===== BACKGROUND GLOW ===== */
-.blob{
-  position:absolute;
-  width:400px;
-  height:400px;
-  background:radial-gradient(circle,#6affff55,#0000);
-  filter:blur(80px);
-  animation:float 12s infinite alternate;
-}
-.blob.one{top:10%;left:10%}
-.blob.two{bottom:10%;right:10%;animation-delay:3s}
-
-@keyframes float{
-  to{transform:translate(120px,-80px)}
+/* ===== CANVAS LAYERS ===== */
+#rain,#fog,#flash{
+  position:fixed;
+  inset:0;
+  pointer-events:none;
 }
 
-/* ===== HERO ===== */
-.hero{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  text-align:center;
-  padding:80px 20px;
-  position:relative;
-}
-
-.hero h1{
-  font-size:clamp(3rem,6vw,5rem);
-  background:linear-gradient(90deg,#fff,#66ffff,#a855f7);
-  -webkit-background-clip:text;
-  color:transparent;
-  animation:shine 4s linear infinite;
-}
-
-@keyframes shine{
-  to{background-position:300%}
-}
-
-.hero p{
-  max-width:700px;
-  opacity:.8;
-  margin-top:20px;
-}
-
-.cta{
-  margin-top:40px;
-  padding:15px 40px;
-  border-radius:50px;
-  background:#0ff;
-  color:black;
-  font-weight:700;
-  border:none;
-  cursor:pointer;
-  box-shadow:0 0 30px #0ff;
+#rain{z-index:-3}
+#fog{z-index:-2}
+#flash{
+  z-index:-1;
+  background:white;
+  opacity:0;
   transition:.3s;
 }
-.cta:hover{transform:scale(1.1);box-shadow:0 0 60px #0ff}
 
-/* ===== SECTIONS ===== */
-section{
-  padding:120px 10%;
+/* grain overlay */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:url("https://grainy-gradients.vercel.app/noise.svg");
+  opacity:.06;
+  pointer-events:none;
+  z-index:10;
 }
 
-.title{
-  font-size:3rem;
-  margin-bottom:60px;
-  text-align:center;
-}
-
-/* ===== CARDS ===== */
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
-  gap:40px;
+/* ===== CENTER CARD ===== */
+.wrapper{
+  position:relative;
+  width:100%;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
 .card{
-  background:rgba(255,255,255,0.06);
-  backdrop-filter:blur(20px);
-  border-radius:25px;
-  padding:40px;
-  border:1px solid rgba(255,255,255,0.1);
-  transition:.4s;
-  transform-style:preserve-3d;
+  background:var(--card);
+  backdrop-filter:blur(18px);
+  border-radius:22px;
+  padding:34px 38px;
+  width:420px;
+  display:grid;
+  grid-template-columns:140px 1fr;
+  gap:26px;
+  animation:float 8s ease-in-out infinite;
+  box-shadow:0 0 80px rgba(0,0,0,.7);
 }
 
-.card:hover{
-  transform:rotateX(8deg) rotateY(-8deg) scale(1.05);
-  box-shadow:0 0 40px #0ff5;
+@keyframes float{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-14px)}
 }
 
-/* ===== STATS ===== */
-.stats{
+.avatar{
+  width:140px;
+  height:140px;
+  border-radius:16px;
+  object-fit:cover;
+  filter:grayscale(1);
+}
+
+/* ===== TEXT ===== */
+h1{
+  font-size:1.6rem;
+  font-weight:800;
+}
+.small{opacity:.65;font-size:.9rem;margin:6px 0}
+
+.bio{font-size:.95rem;opacity:.85}
+
+/* ===== SOCIAL ===== */
+.social{
+  margin-top:12px;
   display:flex;
-  justify-content:center;
-  gap:80px;
-  text-align:center;
+  gap:16px;
 }
-.stat h2{font-size:3rem;color:#0ff}
+.social a{
+  color:white;
+  text-decoration:none;
+  font-size:.9rem;
+  opacity:.7;
+  position:relative;
+}
+.social a::after{
+  content:"";
+  position:absolute;
+  left:0;bottom:-4px;
+  width:0%;
+  height:1px;
+  background:white;
+  transition:.3s;
+}
+.social a:hover{opacity:1}
+.social a:hover::after{width:100%}
 
-/* ===== FOOTER ===== */
-footer{
-  padding:60px;
-  text-align:center;
-  opacity:.5;
-}
+/* ===== LIGHTNING ===== */
+.flash.on{opacity:.18}
 
-/* ===== SCROLL ANIM ===== */
-.reveal{
-  opacity:0;
-  transform:translateY(80px);
-  transition:1s cubic-bezier(.19,1,.22,1);
-}
-.reveal.show{
-  opacity:1;
-  transform:none;
+/* ===== RESPONSIVE ===== */
+@media(max-width:520px){
+  .card{
+    grid-template-columns:1fr;
+    text-align:center;
+  }
+  .avatar{margin:auto}
 }
 </style>
 </head>
+
 <body>
 
-<div class="blob one"></div>
-<div class="blob two"></div>
+<!-- EFFECT LAYERS -->
+<canvas id="rain"></canvas>
+<canvas id="fog"></canvas>
+<div id="flash"></div>
 
-<!-- HERO -->
-<div class="hero">
-  <h1>Future-Grade Automation</h1>
-  <p>Premium UI. Real-time systems. Neon-powered experience.</p>
-  <button class="cta">Launch Dashboard</button>
+<div class="wrapper">
+
+  <!-- PROFILE CARD -->
+  <div class="card">
+    <img src="profile.gif" class="avatar">
+
+    <div>
+      <h1>Your Name</h1>
+      <div class="small">Creative Developer • Gamer</div>
+      <p class="bio">
+        Building cinematic web experiences and immersive digital identities.
+      </p>
+
+      <div class="social">
+        <a href="#">Instagram</a>
+        <a href="#">Discord</a>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- FEATURES -->
-<section>
-  <h2 class="title reveal">Core Features</h2>
-  <div class="cards">
-    <div class="card reveal">⚡ Lightning-fast systems</div>
-    <div class="card reveal">🎛 Animated dashboards</div>
-    <div class="card reveal">🎨 Neon UI themes</div>
-  </div>
-</section>
-
-<!-- STATS -->
-<section>
-  <h2 class="title reveal">Live Impact</h2>
-  <div class="stats">
-    <div class="stat reveal"><h2 data-count="4500">0</h2><p>Servers</p></div>
-    <div class="stat reveal"><h2 data-count="1200000">0</h2><p>Commands</p></div>
-    <div class="stat reveal"><h2 data-count="99">0</h2><p>Uptime %</p></div>
-  </div>
-</section>
-
-<footer>
-  © 2026 Premium Systems
-</footer>
-
 <script>
-/* ===== REVEAL ON SCROLL ===== */
-const reveals=document.querySelectorAll(".reveal");
+/* ================= RAIN ================= */
 
-const io=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      e.target.classList.add("show");
-    }
+const rain = document.getElementById("rain");
+const rctx = rain.getContext("2d");
+
+let w,h;
+function resize(){
+  w = rain.width = window.innerWidth;
+  h = rain.height = window.innerHeight;
+}
+resize();
+window.addEventListener("resize",resize);
+
+const drops=[];
+for(let i=0;i<320;i++){
+  drops.push({
+    x:Math.random()*w,
+    y:Math.random()*h,
+    l:10+Math.random()*25,
+    s:4+Math.random()*10,
+    w:-1.5,
+    a:.15+Math.random()*.35
   });
-},{threshold:.2});
+}
 
-reveals.forEach(r=>io.observe(r));
+function rainLoop(){
+  rctx.clearRect(0,0,w,h);
+  for(const d of drops){
+    rctx.strokeStyle=`rgba(200,200,200,${d.a})`;
+    rctx.beginPath();
+    rctx.moveTo(d.x,d.y);
+    rctx.lineTo(d.x+d.w*4,d.y+d.l);
+    rctx.stroke();
 
-/* ===== COUNT UP ===== */
-document.querySelectorAll("[data-count]").forEach(el=>{
-  const target=+el.dataset.count;
-  let cur=0;
-  const inc=target/120;
-
-  function tick(){
-    cur+=inc;
-    if(cur<target){
-      el.innerText=Math.floor(cur);
-      requestAnimationFrame(tick);
-    }else{
-      el.innerText=target;
+    d.x+=d.w;
+    d.y+=d.s;
+    if(d.y>h){
+      d.y=-20;
+      d.x=Math.random()*w;
     }
   }
-  tick();
-});
+  requestAnimationFrame(rainLoop);
+}
+rainLoop();
+
+/* ================= FOG ================= */
+
+const fog = document.getElementById("fog");
+const fctx = fog.getContext("2d");
+
+fog.width=w; fog.height=h;
+
+const fogs=[];
+for(let i=0;i<22;i++){
+  fogs.push({
+    x:Math.random()*w,
+    y:Math.random()*h,
+    r:200+Math.random()*320,
+    a:.02+Math.random()*.04,
+    s:.1+Math.random()*.3
+  });
+}
+
+function fogLoop(){
+  fctx.clearRect(0,0,w,h);
+  for(const f of fogs){
+    const g=fctx.createRadialGradient(f.x,f.y,0,f.x,f.y,f.r);
+    g.addColorStop(0,`rgba(255,255,255,${f.a})`);
+    g.addColorStop(1,"transparent");
+    fctx.fillStyle=g;
+    fctx.beginPath();
+    fctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+    fctx.fill();
+    f.x+=f.s;
+    if(f.x>w+200)f.x=-200;
+  }
+  requestAnimationFrame(fogLoop);
+}
+fogLoop();
+
+/* ================= LIGHTNING ================= */
+
+const flash=document.getElementById("flash");
+
+setInterval(()=>{
+  if(Math.random()<.25){
+    flash.classList.add("on");
+    setTimeout(()=>flash.classList.remove("on"),120);
+  }
+},3800);
 </script>
 
 </body>
